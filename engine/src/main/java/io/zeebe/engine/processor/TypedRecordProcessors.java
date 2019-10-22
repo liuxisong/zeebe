@@ -46,8 +46,9 @@ public final class TypedRecordProcessors {
     return onRecord(RecordType.COMMAND, valueType, intent, processor);
   }
 
-  public <T extends UnifiedRecordValue> TypedRecordProcessors onCommand(
-      ValueType valueType, Intent intent, CommandProcessor<T> commandProcessor) {
+  public <T extends UnifiedRecordValue, R extends UnifiedRecordValue>
+      TypedRecordProcessors onCommand(
+          ValueType valueType, Intent intent, CommandProcessor<T, R> commandProcessor) {
     return onCommand(valueType, intent, new CommandProcessorImpl<>(commandProcessor));
   }
 

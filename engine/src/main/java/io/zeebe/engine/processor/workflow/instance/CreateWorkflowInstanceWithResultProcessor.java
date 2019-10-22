@@ -12,12 +12,16 @@ import io.zeebe.engine.processor.TypedRecord;
 import io.zeebe.engine.processor.TypedStreamWriter;
 import io.zeebe.engine.state.instance.AwaitWorkflowInstanceResultMetadata;
 import io.zeebe.engine.state.instance.ElementInstanceState;
+import io.zeebe.msgpack.property.ArrayProperty;
+import io.zeebe.msgpack.value.StringValue;
 import io.zeebe.protocol.impl.record.value.workflowinstance.WorkflowInstanceCreationRecord;
+import io.zeebe.protocol.impl.record.value.workflowinstance.WorkflowInstanceCreationWithResultRecord;
 import io.zeebe.protocol.record.RejectionType;
 import io.zeebe.protocol.record.intent.Intent;
 
 public class CreateWorkflowInstanceWithResultProcessor
-    implements CommandProcessor<WorkflowInstanceCreationRecord> {
+    implements CommandProcessor<
+        WorkflowInstanceCreationWithResultRecord, WorkflowInstanceCreationRecord> {
 
   private final CreateWorkflowInstanceProcessor createProcessor;
   private final ElementInstanceState elementInstanceState;
@@ -37,21 +41,22 @@ public class CreateWorkflowInstanceWithResultProcessor
 
   @Override
   public boolean onCommand(
-      TypedRecord<WorkflowInstanceCreationRecord> command,
+      TypedRecord<WorkflowInstanceCreationWithResultRecord> command,
       CommandControl<WorkflowInstanceCreationRecord> controller,
       TypedStreamWriter streamWriter) {
     wrappedController.setCommand(command).setController(controller);
-    createProcessor.onCommand(command, wrappedController, streamWriter);
+    createProcessor.createNewWorkflowInstance(
+        command.getValue().getCreationRecord(), wrappedController, streamWriter);
     return shouldRespond;
   }
 
   private class CommandControlWithAwaitResult
       implements CommandControl<WorkflowInstanceCreationRecord> {
-    TypedRecord<WorkflowInstanceCreationRecord> command;
+    TypedRecord<WorkflowInstanceCreationWithResultRecord> command;
     CommandControl<WorkflowInstanceCreationRecord> controller;
 
     public CommandControlWithAwaitResult setCommand(
-        TypedRecord<WorkflowInstanceCreationRecord> command) {
+        TypedRecord<WorkflowInstanceCreationWithResultRecord> command) {
       this.command = command;
       return this;
     }
@@ -65,9 +70,11 @@ public class CreateWorkflowInstanceWithResultProcessor
     @Override
     public long accept(Intent newState, WorkflowInstanceCreationRecord updatedValue) {
       shouldRespond = false;
+      final ArrayProperty<StringValue> fetchVariables = command.getValue().fetchVariables();
       awaitResultMetadata
           .setRequestId(command.getRequestId())
-          .setRequestStreamId(command.getRequestStreamId());
+          .setRequestStreamId(command.getRequestStreamId())
+          .setFetchVariables(fetchVariables);
 
       elementInstanceState.setAwaitResultRequestMetadata(
           updatedValue.getWorkflowInstanceKey(), awaitResultMetadata);

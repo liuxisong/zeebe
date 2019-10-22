@@ -29,7 +29,7 @@ import io.zeebe.protocol.record.value.BpmnElementType;
 import org.agrona.DirectBuffer;
 
 public class CreateWorkflowInstanceProcessor
-    implements CommandProcessor<WorkflowInstanceCreationRecord> {
+    implements CommandProcessor<WorkflowInstanceCreationRecord, WorkflowInstanceCreationRecord> {
 
   private static final String ERROR_MESSAGE_NO_IDENTIFIER_SPECIFIED =
       "Expected at least a bpmnProcessId or a key greater than -1, but none given";
@@ -69,14 +69,22 @@ public class CreateWorkflowInstanceProcessor
       CommandControl<WorkflowInstanceCreationRecord> controller,
       TypedStreamWriter streamWriter) {
     final WorkflowInstanceCreationRecord record = command.getValue();
+    createNewWorkflowInstance(record, controller, streamWriter);
+    return true;
+  }
+
+  public void createNewWorkflowInstance(
+      WorkflowInstanceCreationRecord record,
+      CommandControl<WorkflowInstanceCreationRecord> controller,
+      TypedStreamWriter streamWriter) {
     final DeployedWorkflow workflow = getWorkflow(record, controller);
     if (workflow == null || !isValidWorkflow(controller, workflow)) {
-      return true;
+      return;
     }
 
     final long workflowInstanceKey = keyGenerator.nextKey();
     if (!setVariablesFromDocument(controller, record, workflow.getKey(), workflowInstanceKey)) {
-      return true;
+      return;
     }
 
     final ElementInstance workflowInstance = createElementInstance(workflow, workflowInstanceKey);
@@ -91,7 +99,6 @@ public class CreateWorkflowInstanceProcessor
         .setVersion(workflow.getVersion())
         .setWorkflowKey(workflow.getKey());
     controller.accept(WorkflowInstanceCreationIntent.CREATED, record);
-    return true;
   }
 
   private boolean isValidWorkflow(

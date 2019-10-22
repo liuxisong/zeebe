@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe" xmlns:xi="http://www.w3.org/2001/XInclude" package="io.zeebe.protocol.record"
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+  xmlns:xi="http://www.w3.org/2001/XInclude" package="io.zeebe.protocol.record"
   id="0" version="${protocol.version}" semanticVersion="${project.version}"
   description="Zeebe Protocol" byteOrder="littleEndian">
 
@@ -36,6 +37,7 @@
       <validValue name="WORKFLOW_INSTANCE_CREATION">19</validValue>
       <validValue name="ERROR">20</validValue>
       <validValue name="WORKFLOW_INSTANCE_RESULT">21</validValue>
+      <validValue name="WORKFLOW_INSTANCE_CREATION_WITH_RESULT">22</validValue>
     </enum>
 
     <enum name="RecordType" encodingType="uint8">

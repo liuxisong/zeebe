@@ -23,6 +23,7 @@ import io.zeebe.protocol.impl.record.value.job.JobRecord;
 import io.zeebe.protocol.impl.record.value.message.MessageRecord;
 import io.zeebe.protocol.impl.record.value.variable.VariableDocumentRecord;
 import io.zeebe.protocol.impl.record.value.workflowinstance.WorkflowInstanceCreationRecord;
+import io.zeebe.protocol.impl.record.value.workflowinstance.WorkflowInstanceCreationWithResultRecord;
 import io.zeebe.protocol.impl.record.value.workflowinstance.WorkflowInstanceRecord;
 import io.zeebe.protocol.record.ExecuteCommandRequestDecoder;
 import io.zeebe.protocol.record.MessageHeaderDecoder;
@@ -75,6 +76,9 @@ public class CommandApiMessageHandler implements ServerMessageHandler, ServerReq
     recordsByType.put(ValueType.INCIDENT, new IncidentRecord());
     recordsByType.put(ValueType.VARIABLE_DOCUMENT, new VariableDocumentRecord());
     recordsByType.put(ValueType.WORKFLOW_INSTANCE_CREATION, new WorkflowInstanceCreationRecord());
+    recordsByType.put(
+        ValueType.WORKFLOW_INSTANCE_CREATION_WITH_RESULT,
+        new WorkflowInstanceCreationWithResultRecord());
   }
 
   private boolean handleExecuteCommandRequest(

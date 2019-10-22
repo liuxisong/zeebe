@@ -15,20 +15,20 @@ import io.zeebe.protocol.record.intent.Intent;
  * High-level record processor abstraction that implements the common behavior of most
  * command-handling processors.
  */
-public interface CommandProcessor<T extends UnifiedRecordValue> {
+public interface CommandProcessor<T extends UnifiedRecordValue, R extends UnifiedRecordValue> {
 
-  default boolean onCommand(TypedRecord<T> command, CommandControl<T> commandControl) {
+  default boolean onCommand(TypedRecord<T> command, CommandControl<R> commandControl) {
     return true;
   }
 
   default boolean onCommand(
-      TypedRecord<T> command, CommandControl<T> commandControl, TypedStreamWriter streamWriter) {
+      TypedRecord<T> command, CommandControl<R> commandControl, TypedStreamWriter streamWriter) {
     return onCommand(command, commandControl);
   }
 
-  interface CommandControl<T> {
+  interface CommandControl<R> {
     /** @return the key of the entity */
-    long accept(Intent newState, T updatedValue);
+    long accept(Intent newState, R updatedValue);
 
     void reject(RejectionType type, String reason);
   }

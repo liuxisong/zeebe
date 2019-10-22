@@ -163,7 +163,7 @@ public class WorkflowEventProcessors {
         createProcessor);
 
     typedRecordProcessors.onCommand(
-        ValueType.WORKFLOW_INSTANCE_CREATION,
+        ValueType.WORKFLOW_INSTANCE_CREATION_WITH_RESULT,
         WorkflowInstanceCreationIntent.CREATE_WITH_AWAITING_RESULT,
         new CreateWorkflowInstanceWithResultProcessor(createProcessor, elementInstanceState));
   }

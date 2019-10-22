@@ -44,8 +44,9 @@ public class ElementInstanceState {
   private final ColumnFamily<DbCompositeKey<DbCompositeKey<DbLong, DbByte>, DbLong>, DbNil>
       recordParentChildColumnFamily;
 
-  private final AwaitWorkflowInstanceResultMetadata awaitResultMetada;
-  private final ColumnFamily<DbLong, AwaitWorkflowInstanceResultMetadata>
+  private final AwaitWorkflowInstanceResultMetadata awaitResultMetadata;
+  private final UnpackedObjectValue awaitResultMetadataValue;
+  private final ColumnFamily<DbLong, UnpackedObjectValue>
       awaitWorkflowInstanceResultMetadataColumnFamily;
 
   private final ExpandableArrayBuffer copyBuffer = new ExpandableArrayBuffer();
@@ -88,13 +89,15 @@ public class ElementInstanceState {
             DbNil.INSTANCE);
 
     variablesState = new VariablesState(zeebeDb, dbContext, keyGenerator);
-    awaitResultMetada = new AwaitWorkflowInstanceResultMetadata();
+    awaitResultMetadata = new AwaitWorkflowInstanceResultMetadata();
+    awaitResultMetadataValue = new UnpackedObjectValue();
+    awaitResultMetadataValue.wrapObject(awaitResultMetadata);
     awaitWorkflowInstanceResultMetadataColumnFamily =
         zeebeDb.createColumnFamily(
             ZbColumnFamilies.AWAIT_WORKLOW_RESULT,
             dbContext,
             elementInstanceKey,
-            awaitResultMetada);
+            awaitResultMetadataValue);
   }
 
   public ElementInstance newInstance(
@@ -314,13 +317,21 @@ public class ElementInstanceState {
   public void setAwaitResultRequestMetadata(
       long workflowInstanceKey, AwaitWorkflowInstanceResultMetadata metadata) {
     elementInstanceKey.wrapLong(workflowInstanceKey);
-    awaitWorkflowInstanceResultMetadataColumnFamily.put(elementInstanceKey, metadata);
+    awaitResultMetadataValue.wrapObject(metadata);
+    awaitWorkflowInstanceResultMetadataColumnFamily.put(
+        elementInstanceKey, awaitResultMetadataValue);
   }
 
   public AwaitWorkflowInstanceResultMetadata getAwaitResultRequestMetadata(
       long workflowInstanceKey) {
     elementInstanceKey.wrapLong(workflowInstanceKey);
-    return awaitWorkflowInstanceResultMetadataColumnFamily.get(elementInstanceKey);
+    final UnpackedObjectValue metadataValue =
+        awaitWorkflowInstanceResultMetadataColumnFamily.get(elementInstanceKey);
+    if (metadataValue != null) {
+      return (AwaitWorkflowInstanceResultMetadata) metadataValue.getObject();
+    } else {
+      return null;
+    }
   }
 
   @FunctionalInterface

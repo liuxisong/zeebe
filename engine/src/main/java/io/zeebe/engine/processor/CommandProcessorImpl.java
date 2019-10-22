@@ -12,10 +12,10 @@ import io.zeebe.protocol.impl.record.UnifiedRecordValue;
 import io.zeebe.protocol.record.RejectionType;
 import io.zeebe.protocol.record.intent.Intent;
 
-public class CommandProcessorImpl<T extends UnifiedRecordValue>
-    implements TypedRecordProcessor<T>, CommandControl<T> {
+public class CommandProcessorImpl<T extends UnifiedRecordValue, R extends UnifiedRecordValue>
+    implements TypedRecordProcessor<T>, CommandControl<R> {
 
-  private final CommandProcessor<T> wrappedProcessor;
+  private final CommandProcessor<T, R> wrappedProcessor;
 
   private KeyGenerator keyGenerator;
 
@@ -23,12 +23,12 @@ public class CommandProcessorImpl<T extends UnifiedRecordValue>
   private long entityKey;
 
   private Intent newState;
-  private T updatedValue;
+  private R updatedValue;
 
   private RejectionType rejectionType;
   private String rejectionReason;
 
-  public CommandProcessorImpl(final CommandProcessor<T> commandProcessor) {
+  public CommandProcessorImpl(final CommandProcessor<T, R> commandProcessor) {
     this.wrappedProcessor = commandProcessor;
   }
 
@@ -62,7 +62,7 @@ public class CommandProcessorImpl<T extends UnifiedRecordValue>
   }
 
   @Override
-  public long accept(final Intent newState, final T updatedValue) {
+  public long accept(final Intent newState, final R updatedValue) {
     if (entityKey < 0) {
       entityKey = keyGenerator.nextKey();
     }

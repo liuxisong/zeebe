@@ -19,7 +19,8 @@ import io.zeebe.protocol.impl.record.value.incident.IncidentRecord;
 import io.zeebe.protocol.record.RejectionType;
 import io.zeebe.protocol.record.intent.IncidentIntent;
 
-public final class CreateIncidentProcessor implements CommandProcessor<IncidentRecord> {
+public final class CreateIncidentProcessor
+    implements CommandProcessor<IncidentRecord, IncidentRecord> {
   public static final String NO_FAILED_RECORD_MESSAGE =
       "Expected to create incident for failed record with key '%d', but no such record was found";
   public static final String JOB_NOT_FAILED_MESSAGE =

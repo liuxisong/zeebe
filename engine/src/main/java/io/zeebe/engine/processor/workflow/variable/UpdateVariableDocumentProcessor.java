@@ -20,7 +20,8 @@ import io.zeebe.protocol.record.intent.VariableDocumentIntent;
 import io.zeebe.protocol.record.value.VariableDocumentUpdateSemantic;
 import org.agrona.DirectBuffer;
 
-public class UpdateVariableDocumentProcessor implements CommandProcessor<VariableDocumentRecord> {
+public class UpdateVariableDocumentProcessor
+    implements CommandProcessor<VariableDocumentRecord, VariableDocumentRecord> {
   private final ElementInstanceState elementInstanceState;
   private final VariablesState variablesState;
 

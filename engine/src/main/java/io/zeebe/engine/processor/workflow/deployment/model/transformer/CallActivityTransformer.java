@@ -14,7 +14,9 @@ import io.zeebe.engine.processor.workflow.deployment.model.transformation.ModelE
 import io.zeebe.engine.processor.workflow.deployment.model.transformation.TransformContext;
 import io.zeebe.model.bpmn.instance.CallActivity;
 import io.zeebe.model.bpmn.instance.zeebe.ZeebeCalledElement;
+import io.zeebe.msgpack.jsonpath.JsonPathQueryCompiler;
 import io.zeebe.protocol.record.intent.WorkflowInstanceIntent;
+import java.util.Optional;
 
 public class CallActivityTransformer implements ModelElementTransformer<CallActivity> {
 
@@ -30,7 +32,7 @@ public class CallActivityTransformer implements ModelElementTransformer<CallActi
     final ExecutableCallActivity callActivity =
         workflow.getElementById(element.getId(), ExecutableCallActivity.class);
 
-    transformProcessId(element, callActivity);
+    transformProcessId(element, callActivity, context.getJsonPathQueryCompiler());
 
     bindLifecycle(callActivity);
   }
@@ -42,11 +44,21 @@ public class CallActivityTransformer implements ModelElementTransformer<CallActi
         WorkflowInstanceIntent.ELEMENT_TERMINATING, BpmnStep.CALL_ACTIVITY_TERMINATING);
   }
 
-  private void transformProcessId(CallActivity element, final ExecutableCallActivity callActivity) {
+  private void transformProcessId(
+      CallActivity element,
+      final ExecutableCallActivity callActivity,
+      JsonPathQueryCompiler jsonPathQueryCompiler) {
 
     final ZeebeCalledElement calledElement =
         element.getSingleExtensionElement(ZeebeCalledElement.class);
 
-    callActivity.setCalledElementProcessId(calledElement.getProcessId());
+    Optional.ofNullable(calledElement.getProcessId())
+        .filter(processId -> !processId.isEmpty())
+        .ifPresent(callActivity::setCalledElementProcessId);
+
+    Optional.ofNullable(calledElement.getProcessIdExpression())
+        .filter(expression -> !expression.isEmpty())
+        .map(jsonPathQueryCompiler::compile)
+        .ifPresent(callActivity::setCalledElementProcessIdExpression);
   }
 }

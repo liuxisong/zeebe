@@ -37,18 +37,17 @@ public class ActivatedJobImpl implements ActivatedJob {
   private final String worker;
   private final int retries;
   private final long deadline;
-  private final String variables;
+  private final Variables variables;
 
   public ActivatedJobImpl(ZeebeObjectMapper objectMapper, GatewayOuterClass.ActivatedJob job) {
     this.objectMapper = objectMapper;
-
     key = job.getKey();
     type = job.getType();
     customHeaders = objectMapper.fromJsonAsStringMap(job.getCustomHeaders());
     worker = job.getWorker();
     retries = job.getRetries();
     deadline = job.getDeadline();
-    variables = job.getVariables();
+    variables = new Variables(job.getVariables(), objectMapper);
     workflowInstanceKey = job.getWorkflowInstanceKey();
     bpmnProcessId = job.getBpmnProcessId();
     workflowDefinitionVersion = job.getWorkflowDefinitionVersion();
@@ -119,17 +118,17 @@ public class ActivatedJobImpl implements ActivatedJob {
 
   @Override
   public String getVariables() {
-    return variables;
+    return variables.getVariables();
   }
 
   @Override
   public Map<String, Object> getVariablesAsMap() {
-    return objectMapper.fromJsonAsMap(variables);
+    return variables.getVariablesAsMap();
   }
 
   @Override
   public <T> T getVariablesAsType(Class<T> variableType) {
-    return objectMapper.fromJson(variables, variableType);
+    return variables.getVariablesAsType(variableType);
   }
 
   @Override

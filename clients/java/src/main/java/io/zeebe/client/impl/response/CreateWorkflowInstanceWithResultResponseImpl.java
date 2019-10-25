@@ -22,22 +22,20 @@ import java.util.Map;
 
 public class CreateWorkflowInstanceWithResultResponseImpl implements WorkflowInstanceResult {
 
-  private final ZeebeObjectMapper objectMapper;
   private final long workflowKey;
   private final String bpmnProcessId;
   private final int version;
   private final long workflowInstanceKey;
-  private final String variables;
+  private final Variables variables;
 
   public CreateWorkflowInstanceWithResultResponseImpl(
       ZeebeObjectMapper objectMapper,
       GatewayOuterClass.CreateWorkflowInstanceWithResultResponse response) {
-    this.objectMapper = objectMapper;
     this.workflowKey = response.getWorkflowKey();
     this.bpmnProcessId = response.getBpmnProcessId();
     this.version = response.getVersion();
     this.workflowInstanceKey = response.getWorkflowInstanceKey();
-    this.variables = response.getVariables();
+    this.variables = new Variables(response.getVariables(), objectMapper);
   }
 
   @Override
@@ -62,17 +60,17 @@ public class CreateWorkflowInstanceWithResultResponseImpl implements WorkflowIns
 
   @Override
   public String getVariables() {
-    return variables;
+    return variables.getVariables();
   }
 
   @Override
   public Map<String, Object> getVariablesAsMap() {
-    return objectMapper.fromJsonAsMap(variables);
+    return variables.getVariablesAsMap();
   }
 
   @Override
   public <T> T getVariablesAsType(Class<T> variableType) {
-    return objectMapper.fromJson(variables, variableType);
+    return variables.getVariablesAsType(variableType);
   }
 
   @Override

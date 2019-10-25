@@ -107,6 +107,9 @@ public interface CreateWorkflowInstanceCommandStep1 {
      * @return the builder for this command. Call {@link #send()} to complete the command and send
      *     it to the broker
      */
-    FinalCommandStep<WorkflowInstanceResult> withResult();
+    CreateWorkflowInstanceWithResultCommandStep1 withResult();
   }
+
+  interface CreateWorkflowInstanceWithResultCommandStep1
+      extends FinalCommandStep<WorkflowInstanceResult> {}
 }

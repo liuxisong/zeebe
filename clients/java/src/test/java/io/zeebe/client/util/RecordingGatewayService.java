@@ -234,7 +234,11 @@ public class RecordingGatewayService extends GatewayImplBase {
   }
 
   public void onCreateWorkflowInstanceWithResultRequest(
-      long workflowKey, String bpmnProcessId, int version, long workflowInstanceKey) {
+      long workflowKey,
+      String bpmnProcessId,
+      int version,
+      long workflowInstanceKey,
+      String variables) {
     addRequestHandler(
         CreateWorkflowInstanceWithResultRequest.class,
         request ->
@@ -243,6 +247,7 @@ public class RecordingGatewayService extends GatewayImplBase {
                 .setBpmnProcessId(bpmnProcessId)
                 .setVersion(version)
                 .setWorkflowInstanceKey(workflowInstanceKey)
+                .setVariables(variables)
                 .build());
   }
 

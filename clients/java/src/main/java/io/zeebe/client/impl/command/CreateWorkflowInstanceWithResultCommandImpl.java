@@ -17,6 +17,7 @@ package io.zeebe.client.impl.command;
 
 import io.grpc.stub.StreamObserver;
 import io.zeebe.client.api.ZeebeFuture;
+import io.zeebe.client.api.command.CreateWorkflowInstanceCommandStep1.CreateWorkflowInstanceWithResultCommandStep1;
 import io.zeebe.client.api.command.FinalCommandStep;
 import io.zeebe.client.api.response.WorkflowInstanceResult;
 import io.zeebe.client.impl.RetriableClientFutureImpl;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class CreateWorkflowInstanceWithResultCommandImpl
-    implements FinalCommandStep<WorkflowInstanceResult> {
+    implements CreateWorkflowInstanceWithResultCommandStep1 {
 
   private static final Duration DEADLINE_OFFSET = Duration.ofSeconds(10);
   private final ZeebeObjectMapper objectMapper;

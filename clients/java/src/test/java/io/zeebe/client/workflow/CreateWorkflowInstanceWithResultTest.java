@@ -30,7 +30,8 @@ public class CreateWorkflowInstanceWithResultTest extends ClientTest {
   @Test
   public void shouldCreateWorkflowInstanceByWorkflowInstanceKey() {
     // given
-    gatewayService.onCreateWorkflowInstanceWithResultRequest(123, "testProcess", 12, 32);
+    final String variables = "{\"key\": \"val\"}";
+    gatewayService.onCreateWorkflowInstanceWithResultRequest(123, "testProcess", 12, 32, variables);
 
     // when
     final WorkflowInstanceResult response =
@@ -47,6 +48,10 @@ public class CreateWorkflowInstanceWithResultTest extends ClientTest {
     assertThat(response.getBpmnProcessId()).isEqualTo("testProcess");
     assertThat(response.getVersion()).isEqualTo(12);
     assertThat(response.getWorkflowInstanceKey()).isEqualTo(32);
+    assertThat(response.getVariablesAsMap()).containsExactly(entry("key", "val"));
+    assertThat(response.getVariables()).isEqualTo(variables);
+    final VariablesPojo result = response.getVariablesAsType(VariablesPojo.class);
+    assertThat(result.getKey()).isEqualTo("val");
 
     final CreateWorkflowInstanceWithResultRequest request = gatewayService.getLastRequest();
     assertThat(request.getRequest().getWorkflowKey()).isEqualTo(123);
@@ -85,5 +90,18 @@ public class CreateWorkflowInstanceWithResultTest extends ClientTest {
     final CreateWorkflowInstanceWithResultRequest request = gatewayService.getLastRequest();
     assertThat(fromJsonAsMap(request.getRequest().getVariables()))
         .containsOnly(entry("foo", "bar"));
+  }
+
+  private static class VariablesPojo {
+    String key;
+
+    public String getKey() {
+      return key;
+    }
+
+    public VariablesPojo setKey(String key) {
+      this.key = key;
+      return this;
+    }
   }
 }
